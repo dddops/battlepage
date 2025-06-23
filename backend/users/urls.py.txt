@@ -1,7 +1,7 @@
-from django.urls import path
-from .views import signup_view
+from django.contrib import admin
+from django.urls import path, include
 
 urlpatterns = [
-    # /api/users/signup/ 주소로 요청이 오면 signup_view 함수를 실행
-    path('signup/', signup_view, name='signup'),
+    path('admin/', admin.site.urls),
+    path('api/users/', include('users.urls')), 
 ]
