@@ -1,7 +1,9 @@
-from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
+from .views import signup_view, login_view # 1. login_view를 추가해주세요.
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/users/', include('users.urls')), 
+    # /api/users/signup/ 주소로 요청이 오면 signup_view 함수를 실행
+    path('signup/', signup_view, name='signup'),
+    # /api/users/login/ 주소로 요청이 오면 login_view 함수를 실행
+    path('login/', login_view, name='login'), # 2. 이 줄을 추가해주세요.
 ]

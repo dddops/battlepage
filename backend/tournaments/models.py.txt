@@ -1,0 +1,28 @@
+from django.db import models
+# User 모델을 참조하기 위해 import 합니다.
+from users.models import User 
+
+class Tournament(models.Model):
+    # 토너먼트의 이름 (예: "제1회 LOL 브론즈 대전")
+    name = models.CharField(max_length=200)
+    
+    # 토너먼트 주최자 (User 모델과 연결)
+    organizer = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    # 총 상금
+    prize_pool = models.PositiveIntegerField(default=0)
+
+    # 참가비
+    entry_fee = models.PositiveIntegerField(default=0)
+
+    # 토너먼트 상태 (예: '모집중', '진행중', '종료')
+    status = models.CharField(max_length=50, default='모집중')
+
+    # 토너먼트 시작 날짜와 시간
+    start_date = models.DateTimeField()
+    
+    # 토너먼트 생성일
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
