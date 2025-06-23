@@ -1,0 +1,46 @@
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+from .models import Tournament
+from users.models import User # User 모델을 가져오기 위해 추가
+from datetime import datetime
+
+@csrf_exempt
+def create_tournament_view(request):
+    if request.method == 'POST':
+        # [보안] 나중에는 로그인한 유저만 토너먼트를 생성할 수 있도록 인증 과정을 추가해야 합니다.
+        # 지금은 임시로 user_id 1번을 주최자로 가정합니다.
+        try:
+            # 임시 주최자 설정
+            organizer = User.objects.get(id=1) 
+        except User.DoesNotExist:
+            # 임시로 유저가 없을 경우를 대비한 로직
+            return JsonResponse({'status': 'error', 'message': '주최자 유저를 찾을 수 없습니다.'}, status=404)
+
+        try:
+            data = json.loads(request.body)
+            name = data.get('name')
+            prize_pool = data.get('prize_pool')
+            entry_fee = data.get('entry_fee')
+            start_date_str = data.get('start_date') # 예: "2025-12-25 19:00:00"
+
+            if not all([name, prize_pool, entry_fee, start_date_str]):
+                return JsonResponse({'status': 'error', 'message': '모든 필드를 입력해주세요.'}, status=400)
+            
+            # 날짜 문자열을 datetime 객체로 변환
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d %H:%M:%S')
+
+            tournament = Tournament(
+                name=name,
+                organizer=organizer,
+                prize_pool=prize_pool,
+                entry_fee=entry_fee,
+                start_date=start_date
+            )
+            tournament.save()
+
+            return JsonResponse({'status': 'success', 'message': '토너먼트가 성공적으로 생성되었습니다.'}, status=201)
+        except (json.JSONDecodeError, ValueError):
+            return JsonResponse({'status': 'error', 'message': '잘못된 요청 형식이거나 날짜 형식이 올바르지 않습니다.'}, status=400)
+
+    return JsonResponse({'status': 'error', 'message': 'POST 요청만 가능합니다.'}, status=405)
